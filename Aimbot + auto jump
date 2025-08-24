@@ -1,0 +1,71 @@
+-- LocalScript: StarterPlayerScripts/FE_Aimbot_AutoJump.lua
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+local UserInputService = game:GetService("UserInputService")
+
+local LocalPlayer = Players.LocalPlayer
+local Camera = Workspace.CurrentCamera
+
+-- ===== AIMBOT =====
+local function getClosestVisibleEnemy()
+local closest, closestDist = nil, math.huge
+
+for _, player in ipairs(Players:GetPlayers()) do  
+    if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then  
+        local hrp = player.Character.HumanoidRootPart  
+        local humanoid = player.Character:FindFirstChildOfClass("Humanoid")  
+
+        if humanoid and humanoid.Health > 0 then  
+            local screenPos, onScreen = Camera:WorldToViewportPoint(hrp.Position)  
+            if onScreen then  
+                local rayOrigin = Camera.CFrame.Position  
+                local rayDirection = (hrp.Position - rayOrigin).Unit * (hrp.Position - rayOrigin).Magnitude  
+                local raycastParams = RaycastParams.new()  
+                raycastParams.FilterDescendantsInstances = {LocalPlayer.Character}  
+                raycastParams.FilterType = Enum.RaycastFilterType.Blacklist  
+
+                local result = Workspace:Raycast(rayOrigin, rayDirection, raycastParams)  
+
+                if result and result.Instance:IsDescendantOf(player.Character) then  
+                    local dist = (Camera.CFrame.Position - hrp.Position).Magnitude  
+                    if dist < closestDist then  
+                        closest = hrp  
+                        closestDist = dist  
+                    end  
+                end  
+            end  
+        end  
+    end  
+end  
+return closest
+
+end
+
+RunService.RenderStepped:Connect(function()
+local target = getClosestVisibleEnemy()
+if target then
+Camera.CFrame = CFrame.new(Camera.CFrame.Position, target.Position)
+end
+end)
+
+-- ===== AUTO JUMP =====
+local function setupAutoJump(character)
+local humanoid = character:WaitForChild("Humanoid", 5)
+if not humanoid then return end
+
+-- setiap kali state berubah  
+humanoid.StateChanged:Connect(function(_, newState)  
+    if newState == Enum.HumanoidStateType.Landed then  
+        humanoid:ChangeState(Enum.HumanoidStateType.Jumping)  
+    end  
+end)
+
+end
+
+-- pas spawn / respawn
+LocalPlayer.CharacterAdded:Connect(setupAutoJump)
+if LocalPlayer.Character then
+setupAutoJump(LocalPlayer.Character)
+end
+
