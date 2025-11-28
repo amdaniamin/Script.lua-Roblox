@@ -140,12 +140,12 @@ corner.Parent = container
 -- Rainbow border frame (siluet luar)
 local border = Instance.new("Frame")
 border.Name = "Border"
-border.Size = UDim2.new(1, 4, 1, 4)
-border.Position = UDim2.new(0, -2, 0, -2)
+border.Size = UDim2.new(1, 8, 1, 8)
+border.Position = UDim2.new(0, -4, 0, -4)
 border.BackgroundColor3 = Color3.fromRGB(255,0,0)
 border.BorderSizePixel = 0
 border.ZIndex = 0
-border.Parent = container
+border.Parent = screenGui
 
 local borderCorner = Instance.new("UICorner")
 borderCorner.CornerRadius = UDim.new(0, 12)
@@ -161,23 +161,12 @@ task.spawn(function()
     end
 end)
 
--- Make border follow container position/size using RenderStepped (aman-guard nil checks)
+-- Make border follow container position/size using RenderStepped
 RunService.RenderStepped:Connect(function()
-    if not container or not container.Parent or not border or not border.Parent then
-        return
-    end
-    local ok, absPos = pcall(function() return container.AbsolutePosition end)
-    local ok2, absSize = pcall(function() return container.AbsoluteSize end)
-    local parentAbsPos = nil
-    if border.Parent and border.Parent:IsA("GuiObject") then
-        local ok3, ppos = pcall(function() return border.Parent.AbsolutePosition end)
-        if ok3 then parentAbsPos = ppos end
-    end
-
-    if ok and ok2 and parentAbsPos then
-        border.Position = UDim2.new(0, absPos.X - parentAbsPos.X - 4, 0, absPos.Y - parentAbsPos.Y - 4)
-        border.Size = UDim2.new(0, absSize.X + 8, 0, absSize.Y + 8)
-    end
+    local absPos = container.AbsolutePosition
+    local absSize = container.AbsoluteSize
+    border.Position = UDim2.new(0, absPos.X - border.Parent.AbsolutePosition.X - 4, 0, absPos.Y - border.Parent.AbsolutePosition.Y - 4)
+    border.Size = UDim2.new(0, absSize.X + 8, 0, absSize.Y + 8)
 end)
 
 -- Rainbow animation (loop) - simple HSL to RGB cycling
@@ -187,6 +176,7 @@ spawn(function()
 		hue = (hue + 1) % 360
 		-- convert HSL-ish to RGB (simple)
 		local function hsl_to_rgb(h)
+			local c = 1
 			local x = 1 - math.abs((h / 60) % 2 - 1)
 			local r,g,b = 0,0,0
 			if h < 60 then r,g,b = 1,x,0
