@@ -140,12 +140,12 @@ corner.Parent = container
 -- Rainbow border frame (siluet luar)
 local border = Instance.new("Frame")
 border.Name = "Border"
-border.Size = UDim2.new(1, 8, 1, 8)
-border.Position = UDim2.new(0, -4, 0, -4)
+border.Size = UDim2.new(1, 4, 1, 4)
+border.Position = UDim2.new(0, -2, 0, -2)
 border.BackgroundColor3 = Color3.fromRGB(255,0,0)
 border.BorderSizePixel = 0
 border.ZIndex = 0
-border.Parent = screenGui
+border.Parent = container
 
 local borderCorner = Instance.new("UICorner")
 borderCorner.CornerRadius = UDim.new(0, 12)
